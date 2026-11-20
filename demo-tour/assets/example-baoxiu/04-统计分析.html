@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>04 统计分析</title>
+<style>
+  body{font-family:"Microsoft YaHei",sans-serif;background:#F2F3F5;margin:0;padding:24px}
+  .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;max-width:760px;margin:0 auto}
+  .kpi{background:#FFF;border:1px solid #E5E6EB;border-radius:10px;padding:16px;text-align:center}
+  .kpi b{font-family:Bahnschrift,Arial;font-size:28px;display:block}
+  .kpi span{color:#86909C;font-size:12px}
+</style>
+</head>
+<body>
+<div class="kpis" id="stat-kpis">
+  <div class="kpi"><b style="color:#165DFF">12</b><span>本月报修单</span></div>
+  <div class="kpi"><b style="color:#00B42A">92%</b><span>闭环率</span></div>
+  <div class="kpi"><b style="color:#FF7D00">3.2h</b><span>平均修复时长</span></div>
+</div>
+<script src="_shared/mock.js"></script>
+<script src="_shared/tour.js"></script>
+<script>if (location.hash.match(/#\/tour@/)) setTimeout(CMP.resumeTour, 300);</script>
+</body>
+</html>

@@ -1,0 +1,154 @@
+/* ============================================================
+ * styles-arco.css · 浅色管理后台主题（S1 工业科技蓝的实现示例）
+ * 通过 body.arco-admin 生效；与 styles-screen.css 在同一 DOM 上切换。
+ * 设计基准 1920×1080；断点 1200px / 768px。
+ * ============================================================ */
+
+/* ---- 设计令牌（S1）---- */
+:root {
+  --c-primary: #165DFF; --c-primary-hover: #4080FF; --c-primary-active: #0E42D2; --c-primary-bg: #E8F3FF;
+  --c-bg: #F2F3F5; --c-panel: #FFF; --c-line: #E5E6EB;
+  --c-t1: #1D2129; --c-t2: #4E5969; --c-t3: #86909C;
+  --c-ok: #00B42A; --c-warn: #FF7D00; --c-danger: #F53F3F; --c-yellow: #FFC400;
+  --f-digits: Bahnschrift, "DIN Alternate", "Segoe UI", sans-serif;
+  --f-mono: "Cascadia Code", Consolas, "Courier New", monospace;
+  --shadow: 0 2px 8px rgba(29, 33, 41, .08);
+}
+
+* { box-sizing: border-box; }
+body.arco-admin { margin: 0; font-family: "Microsoft YaHei", "PingFang SC", sans-serif; background: var(--c-bg); color: var(--c-t1); font-size: 13px; }
+
+/* ---- admin-shell：216px 侧栏 + 52px 顶栏 + 滚动内容区 ---- */
+.admin-shell { display: grid; grid-template-columns: 216px 1fr; min-height: 100vh; }
+.side { background: var(--c-panel); border-right: 1px solid var(--c-line); padding: 14px 10px; }
+.side-logo { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 14px; padding: 6px 10px 16px; color: var(--c-primary); }
+.nav-item { display: flex; align-items: center; gap: 9px; padding: 9px 12px; border-radius: 6px; color: var(--c-t2); text-decoration: none; margin-bottom: 3px; }
+.nav-item:hover { background: var(--c-primary-bg); color: var(--c-primary); }
+.nav-item.on { background: var(--c-primary-bg); color: var(--c-primary); font-weight: 600; }
+.nav-disabled { opacity: .55; cursor: not-allowed; justify-content: space-between; }
+
+.topbar { height: 52px; background: var(--c-panel); border-bottom: 1px solid var(--c-line); display: flex; align-items: center; gap: 14px; padding: 0 20px; position: sticky; top: 0; z-index: 20; }
+.crumb { color: var(--c-t3); } .crumb b { color: var(--c-t1); font-weight: 600; }
+.topbar .spacer { flex: 1; }
+.alarm-lamp { width: 10px; height: 10px; border-radius: 50%; background: var(--c-ok); }
+.alarm-lamp.warn { background: var(--c-warn); animation: lampBlink 2s infinite; }
+.alarm-lamp.danger { background: var(--c-danger); animation: lampBlink 1.1s infinite; }
+.clock { color: var(--c-t2); font-family: var(--f-digits); }
+
+.main { padding: 18px 20px; min-width: 0; min-height: 0; }
+
+/* ---- 视图容器（单 HTML 多视图）---- */
+.view { display: none; }
+.view.on { display: block; animation: cardIn .32s ease; }
+@keyframes cardIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+/* ---- KPI 统计行 ---- */
+.a-stat-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 14px; }
+.a-stat { background: var(--c-panel); border: 1px solid var(--c-line); border-radius: 8px; padding: 14px 16px; box-shadow: var(--shadow); }
+.a-stat b { display: block; font-size: 24px; font-family: var(--f-digits); font-weight: 600; }
+.a-stat span { color: var(--c-t3); font-size: 12px; }
+.a-stat.danger b { color: var(--c-danger); } .a-stat.warn b { color: var(--c-warn); } .a-stat.ok b { color: var(--c-ok); }
+
+/* ---- 卡片 ---- */
+.card { background: var(--c-panel); border: 1px solid var(--c-line); border-radius: 8px; padding: 16px; margin-bottom: 14px; box-shadow: var(--shadow); min-width: 0; }
+.card-t { font-size: 14px; font-weight: 600; margin: 0 0 12px; display: flex; align-items: center; gap: 8px; }
+.card-t .spacer { flex: 1; }
+
+/* ---- 按钮（34px；loading=禁用+文案"××中…"）---- */
+.btn { height: 34px; padding: 0 16px; border-radius: 2px; border: 1px solid var(--c-line); background: var(--c-panel); color: var(--c-t1); font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+.btn:hover { border-color: var(--c-primary); color: var(--c-primary); }
+.btn-primary { background: var(--c-primary); border-color: var(--c-primary); color: #FFF; }
+.btn-primary:hover { background: var(--c-primary-hover); color: #FFF; }
+.btn-danger { background: var(--c-danger); border-color: var(--c-danger); color: #FFF; }
+.btn-ghost { background: transparent; }
+.btn-sm { height: 28px; padding: 0 10px; font-size: 12px; }
+.btn:disabled { opacity: .55; cursor: not-allowed; }
+
+/* ---- 标签（语义修饰三件套）---- */
+.a-tag { display: inline-block; font-size: 11px; padding: 1px 8px; border-radius: 2px; border: 1px solid; line-height: 18px; }
+.a-tag.ok { color: var(--c-ok); background: #E8FFEA; border-color: #AFF0B5; }
+.a-tag.wait { color: var(--c-warn); background: #FFF7E8; border-color: #FFDDB3; }
+.a-tag.red { color: var(--c-danger); background: #FFECE8; border-color: #FDACA5; }
+.a-tag.orange { color: var(--c-warn); background: #FFF7E8; border-color: #FFDDB3; }
+.a-tag.yellow { color: #B98A00; background: #FFFCE8; border-color: #FFE380; }
+.a-tag.blue { color: var(--c-primary); background: var(--c-primary-bg); border-color: #BEDAFF; }
+
+/* ---- 表格（表头 sticky；编号/时间列 .mono；前端分页）---- */
+.a-table { width: 100%; border-collapse: collapse; }
+.a-table th { position: sticky; top: 0; background: #F7F8FA; color: var(--c-t3); font-weight: 500; text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--c-line); font-size: 12px; }
+.a-table td { padding: 9px 12px; border-bottom: 1px solid #F2F3F5; }
+.a-table tbody tr:hover { background: #F7F9FF; }
+.mono { font-family: var(--f-mono); font-size: 12px; }
+.pager { display: flex; gap: 8px; justify-content: flex-end; align-items: center; padding-top: 10px; color: var(--c-t3); font-size: 12px; }
+
+/* ---- 表单（必填星号/红框/文案三件套）---- */
+.a-field { margin-bottom: 14px; }
+.a-field label { display: block; margin-bottom: 6px; color: var(--c-t2); }
+.req::after { content: " *"; color: var(--c-danger); }
+.a-input, .a-select, .a-textarea { width: 100%; height: 34px; border: 1px solid var(--c-line); border-radius: 2px; padding: 0 10px; font-size: 13px; }
+.a-textarea { height: auto; padding: 8px 10px; }
+.a-input:focus, .a-select:focus { outline: none; border-color: var(--c-primary); box-shadow: 0 0 0 2px rgba(22, 93, 255, .15); }
+.error { border-color: var(--c-danger) !important; box-shadow: 0 0 0 2px rgba(245, 63, 63, .12); }
+.a-err { color: var(--c-danger); font-size: 11.5px; margin-top: 4px; display: none; }
+.a-err.show { display: block; }
+
+/* ---- 抽屉（440px 右滑 + 遮罩 + Esc）---- */
+.a-mask { position: fixed; inset: 0; background: rgba(29, 33, 41, .4); z-index: 100; display: flex; align-items: center; justify-content: center; animation: maskIn .2s; }
+@keyframes maskIn { from { opacity: 0; } }
+.a-modal { background: #FFF; border-radius: 8px; width: 420px; max-width: calc(100vw - 40px); padding: 20px; box-shadow: 0 10px 40px rgba(29, 33, 41, .14); animation: cardIn .25s; }
+.a-modal-wide { width: 680px; }
+.a-modal-t { font-size: 15px; font-weight: 600; display: flex; align-items: center; margin-bottom: 10px; }
+.a-modal-t .a-modal-x { margin-left: auto; border: none; background: #F2F3F5; border-radius: 6px; width: 24px; height: 24px; cursor: pointer; display: grid; place-items: center; }
+.a-modal-d { color: var(--c-t2); line-height: 1.7; margin-bottom: 18px; }
+.a-modal-btns { display: flex; gap: 10px; justify-content: flex-end; }
+
+.a-drawer-mask { position: fixed; inset: 0; background: rgba(29, 33, 41, .4); z-index: 90; animation: maskIn .2s; }
+.a-drawer { position: fixed; top: 0; right: -460px; width: 440px; max-width: calc(100vw - 30px); height: 100vh; background: #FFF; z-index: 95; box-shadow: -8px 0 30px rgba(29, 33, 41, .12); transition: right .28s cubic-bezier(.3, .8, .4, 1); display: flex; flex-direction: column; }
+.a-drawer.open { right: 0; }
+.a-drawer-h { padding: 14px 18px; border-bottom: 1px solid var(--c-line); display: flex; align-items: center; }
+.a-drawer-b { padding: 16px 18px; overflow-y: auto; flex: 1; }
+.kv { display: grid; grid-template-columns: 76px 1fr; gap: 7px 10px; font-size: 12.5px; }
+.kv i { color: var(--c-t3); font-style: normal; }
+
+/* ---- Toast（右上角四态，3600ms 退场）---- */
+#toast-root { position: fixed; top: 16px; right: 16px; z-index: 200; display: flex; flex-direction: column; gap: 8px; }
+.a-toast { background: #FFF; border-radius: 6px; box-shadow: 0 6px 20px rgba(29, 33, 41, .13); padding: 10px 14px; display: flex; gap: 9px; min-width: 260px; animation: cardIn .25s; }
+.a-toast svg { flex-shrink: 0; margin-top: 1px; }
+.a-toast b { display: block; font-size: 13px; }
+.a-toast span { color: var(--c-t3); font-size: 12px; }
+.a-toast.out { opacity: 0; transition: opacity .3s; }
+
+/* ---- 开关 / 页签 ---- */
+.a-switch { width: 38px; height: 20px; border-radius: 10px; background: #E5E6EB; position: relative; cursor: pointer; transition: background .2s; display: inline-block; }
+.a-switch::after { content: ""; position: absolute; width: 16px; height: 16px; border-radius: 50%; background: #FFF; top: 2px; left: 2px; transition: left .2s; box-shadow: 0 1px 3px rgba(0, 0, 0, .2); }
+.a-switch.on { background: var(--c-primary); } .a-switch.on::after { left: 20px; }
+.a-tabs { display: inline-flex; background: #F2F3F5; border-radius: 4px; padding: 2px; gap: 2px; }
+.a-tabs button { border: none; background: transparent; padding: 5px 14px; border-radius: 3px; cursor: pointer; font-size: 12.5px; color: var(--c-t2); }
+.a-tabs button.on { background: #FFF; color: var(--c-primary); font-weight: 600; box-shadow: var(--shadow); }
+
+/* ---- 微图表（CSS 迷你柱 / sparkline）---- */
+.spark { display: inline-flex; align-items: flex-end; gap: 2px; height: 26px; }
+.spark i { width: 5px; background: var(--c-primary); border-radius: 1px; opacity: .8; min-height: 2px; }
+
+/* ---- 空态 ---- */
+.empty { text-align: center; color: var(--c-t3); padding: 36px 0; }
+.empty svg { opacity: .4; margin-bottom: 8px; }
+
+/* ---- 页脚口径声明 ---- */
+.footer-note { text-align: center; color: var(--c-t3); font-size: 11px; padding: 18px 0 6px; }
+
+/* ---- 告警呼吸（浅色仅警示元素用）---- */
+@keyframes lampBlink { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
+
+/* ---- 响应式：1200px 侧栏收窄为图标态；768px 全单列 ---- */
+@media (max-width: 1200px) {
+  .admin-shell { grid-template-columns: 56px 1fr; }
+  .side-logo span, .nav-item span, .nav-item .a-tag { display: none; }
+  .a-stat-row { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 768px) {
+  .admin-shell { grid-template-columns: 1fr; }
+  .side { display: none; }
+  .a-stat-row { grid-template-columns: repeat(2, 1fr); }
+  .main { padding: 12px; }
+}

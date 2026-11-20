@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>02 告警报修</title>
+<style>
+  body{font-family:"Microsoft YaHei",sans-serif;background:#F2F3F5;margin:0;padding:24px}
+  .wrap{max-width:920px;margin:0 auto}
+  .sec{background:#FFF;border:1px solid #E5E6EB;border-radius:10px;padding:14px 18px;margin-bottom:14px}
+  h3{margin:0 0 10px;font-size:15px}
+  select{padding:5px 10px;border:1px solid #E5E6EB;border-radius:6px}
+  .row{display:flex;gap:10px;align-items:center;padding:9px 8px;border-bottom:1px dashed #F2F3F5;font-size:13px;cursor:pointer}
+  .lv{border-radius:4px;padding:2px 8px;color:#FFF;font-size:11px;flex:none}
+  .num{font-family:Bahnschrift,Arial;color:#86909C;font-size:12px}
+  .btn{border:none;border-radius:6px;padding:6px 14px;font-size:12px;cursor:pointer;background:#165DFF;color:#FFF}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="sec">
+    <h3>告警池 <select id="f-device" style="float:right"><option value="">全部设备</option><option value="EQ-01">EQ-01 空压机A</option><option value="EQ-03">EQ-03 行车C</option></select></h3>
+    <div id="al-list"></div>
+  </div>
+  <div class="sec">
+    <h3>报修单池</h3>
+    <div id="rp-list"></div>
+  </div>
+</div>
+<script src="_shared/mock.js"></script>
+<script src="_shared/tour.js"></script>
+<script>
+function renderAl() {
+  var f = document.getElementById('f-device').value;
+  document.getElementById('al-list').innerHTML = DB.alarms.filter(function (a) { return !f || a.device === f; }).map(function (a) {
+    var col = a.lv === 'red' ? '#F53F3F' : '#FF7D00';
+    return '<div class="row" data-al="' + a.id + '"><span class="lv" style="background:' + col + '">' + (a.lv === 'red' ? '红' : '橙') + '</span>' +
+      '<span style="flex:1">' + a.title + ' <span class="num">(' + a.value + ')</span></span>' +
+      (a.report ? '<button class="btn" onclick="toast(\'' + a.id + '\')">生成报修单</button>' : '') +
+      '<span class="num">' + a.time.slice(5, 16) + '</span></div>';
+  }).join('');
+}
+function renderRp() {
+  document.getElementById('rp-list').innerHTML = DB.reports.map(function (r) {
+    return '<div class="row" data-rp="' + r.id + '"><b>' + r.id + '</b><span style="flex:1">' + r.desc + '</span>' +
+      '<span class="num">' + r.state + (r.ticket ? ' → ' + r.ticket : '') + '</span></div>';
+  }).join('');
+}
+function toast(id) {
+  var t = document.createElement('div');
+  t.style.cssText = 'position:fixed;top:18px;right:18px;z-index:999;background:#00B42A;color:#FFF;padding:10px 16px;border-radius:8px;font-size:13px;box-shadow:0 6px 20px rgba(0,180,42,.3)';
+  t.textContent = id + ' → 已生成报修单并自动派单（演示桩）';
+  document.body.appendChild(t);
+  setTimeout(function () { t.remove(); }, 3200);
+}
+document.getElementById('f-device').onchange = renderAl;
+renderAl(); renderRp();
+if (location.hash.match(/#\/tour@/)) setTimeout(CMP.resumeTour, 300);
+</script>
+</body>
+</html>

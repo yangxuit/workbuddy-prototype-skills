@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>门户 · 设备运行监控平台</title>
+<link rel="stylesheet" href="_shared/styles-arco.css">
+</head>
+<body class="arco-admin">
+<div style="max-width:1080px;margin:0 auto;padding:34px 24px;">
+  <h1 style="font-size:22px;margin:0 0 4px;">设备运行监控平台</h1>
+  <p style="color:var(--c-t3);margin:0 0 24px;font-size:12.5px;">
+    <span id="meta-corp"></span> · <span id="meta-ver"></span> · 安全运行 <b class="mono" id="meta-days" style="color:var(--c-ok)"></b> 天
+  </p>
+
+  <!-- 门户卡片由 DB.portal.docs 渲染，按 delivered 字段标注交付状态 -->
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;" id="portal-cards"></div>
+
+  <p class="footer-note" id="mock-note"></p>
+</div>
+
+<script src="_shared/mock.js"></script>
+<script src="_shared/components.js"></script>
+<script>
+  (function () {
+    document.getElementById('meta-corp').textContent = DB.meta.corp;
+    document.getElementById('meta-ver').textContent = DB.meta.version;
+    document.getElementById('meta-days').textContent = DB.meta.runDays;
+    document.getElementById('mock-note').textContent = DB.meta.mock;
+
+    document.getElementById('portal-cards').innerHTML = DB.portal.docs.map(function (d) {
+      if (!d.delivered) {
+        /* 未交付模块：禁用态 + 显式标注，禁止伪造成可用 */
+        return '<div class="card" style="opacity:.6"><div class="card-t">' + CMP.icon('bell') + d.no + ' ' + d.name +
+          '<span class="spacer"></span><span class="a-tag wait">' + (d.note || '未交付') + '</span></div>' +
+          '<p style="color:var(--c-t3);font-size:12px;">该模块规划中，入口禁用（能力诚实标注铁律）。</p></div>';
+      }
+      return '<a class="card" href="' + d.file + '" style="text-decoration:none;color:inherit;display:block">' +
+        '<div class="card-t">' + CMP.icon('monitor') + d.no + ' ' + d.name +
+        '<span class="spacer"></span><span class="a-tag ok">已交付</span></div>' +
+        '<p style="color:var(--c-t2);font-size:12.5px;margin:0;">设备健康度看板 · 告警联动 · 趋势分析</p></a>';
+    }).join('');
+    CMP.hydrateIcons();
+  })();
+</script>
+</body>
+</html>

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>账户中心 · 报修闭环演示门户</title>
+<style>
+  body{font-family:"Microsoft YaHei",sans-serif;background:#F2F3F5;margin:0;padding:30px}
+  .card{background:#FFF;border:1px solid #E5E6EB;border-radius:10px;padding:22px;max-width:880px;margin:0 auto}
+  h1{font-size:20px;margin:0 0 8px}
+  p{color:#4E5969;font-size:13px;line-height:1.8}
+  .links a{color:#165DFF;text-decoration:none;display:inline-block;border:1px solid #165DFF;border-radius:6px;padding:6px 14px;margin:4px 6px 0 0;font-size:13px}
+  .go{display:block;margin:18px auto 0;background:#165DFF;color:#FFF;border:none;border-radius:8px;padding:11px 30px;font-size:14px;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>设备报修闭环平台 · 原型门户</h1>
+  <p>4 个页面：01 设备监控（健康度看板）｜02 告警报修（告警池+报修单池）｜03 工单闭环（七步流程）｜04 统计分析<br>
+  主线故事：空压机A 高温红警 → 报修 → 派单 → 检修 → 验收签名归档（AL-1103-006 / RP-1103-02 / WO-1103-05）</p>
+  <div class="links">
+    <a href="01-设备监控.html">01 设备监控</a>
+    <a href="02-告警报修.html">02 告警报修</a>
+    <a href="03-工单闭环.html">03 工单闭环</a>
+    <a href="04-统计分析.html">04 统计分析</a>
+  </div>
+  <button class="go" onclick="CMP.startTour('T1')">▶ 引导式演示（10步·自动翻页）</button>
+</div>
+<script src="_shared/mock.js"></script>
+<script src="_shared/tour.js"></script>
+<script>if (location.hash.match(/#\/tour@/)) setTimeout(CMP.resumeTour, 300);</script>
+</body>
+</html>

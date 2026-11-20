@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>01 设备监控</title>
+<style>
+  body{font-family:"Microsoft YaHei",sans-serif;background:#F2F3F5;margin:0;padding:24px}
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;max-width:900px;margin:0 auto}
+  .dev{background:#FFF;border:1px solid #E5E6EB;border-radius:10px;padding:16px}
+  .dev h3{margin:0 0 6px;font-size:15px}
+  .dev .st{display:inline-block;border-radius:4px;padding:2px 8px;font-size:11px;color:#FFF}
+  .hb{height:8px;background:#F2F3F5;border-radius:4px;overflow:hidden;margin-top:8px}
+  .hb i{display:block;height:100%}
+  .num{font-family:Bahnschrift,Arial}
+</style>
+</head>
+<body>
+<div class="grid" id="board"></div>
+<script src="_shared/mock.js"></script>
+<script src="_shared/tour.js"></script>
+<script>
+document.getElementById('board').innerHTML = DB.devices.map(function (d) {
+  var col = d.status === 'alarm' ? '#F53F3F' : d.status === 'warn' ? '#FF7D00' : '#00B42A';
+  var nm = { alarm: '告警', warn: '预警', run: '运行' }[d.status];
+  /* 演示到第7站（回归监控）时健康度已回升——由 tourStep 判定 */
+  var ts = CMP.tourStep ? CMP.tourStep() : null;
+  var hi = d.id === 'EQ-01' && ts && ts.step >= 6 ? 89 : d.health;
+  return '<div class="dev" data-eq="' + d.id + '"><h3>' + d.id + ' ' + d.name +
+    ' <span class="st" style="background:' + col + '">' + nm + '</span></h3>' +
+    '<div style="color:#86909C;font-size:12px">' + d.area + ' · 健康度 <b class="num" style="color:' + col + '">' + hi + '</b></div>' +
+    '<div class="hb"><i style="width:' + hi + '%;background:' + col + '"></i></div></div>';
+}).join('');
+if (location.hash.match(/#\/tour@/)) setTimeout(CMP.resumeTour, 300);
+</script>
+</body>
+</html>

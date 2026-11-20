@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>01 设备监控 · 设备运行监控平台</title>
+<link rel="stylesheet" href="_shared/styles-arco.css">
+</head>
+<body class="arco-admin">
+<div class="admin-shell">
+  <aside class="side">
+    <div class="side-logo"><i data-icon="factory" data-size="18"></i><span>设备监控平台</span></div>
+    <nav id="side-nav"></nav>
+  </aside>
+  <div>
+    <header class="topbar">
+      <span class="crumb">设备监控 / <b>监控看板</b></span>
+      <span class="spacer"></span>
+      <span class="alarm-lamp" id="alarm-lamp" title="今日告警状态"></span>
+      <span class="clock" id="clock"></span>
+    </header>
+    <main class="main">
+
+      <!-- KPI 行（数据来自 DB.m01.kpi，与表格明细对账一致） -->
+      <div class="a-stat-row" id="kpi-row"></div>
+
+      <!-- 设备列表（数据走 API 桩；行点击开抽屉；危险操作二次确认） -->
+      <div class="card">
+        <div class="card-t">
+          <i data-icon="cpu"></i>设备台账
+          <span class="spacer"></span>
+          <button class="btn btn-sm" id="btn-simulate"><i data-icon="zap" data-size="13"></i>模拟新告警</button>
+        </div>
+        <table class="a-table">
+          <thead><tr>
+            <th>编号</th><th>设备</th><th>车间</th><th>状态</th><th>健康度</th><th>关键读数</th><th>标签</th><th>更新时间</th><th></th>
+          </tr></thead>
+          <tbody id="dev-tbody"></tbody>
+        </table>
+        <div class="pager" id="dev-pager"></div>
+      </div>
+
+      <p class="footer-note">纯静态演示，全部数据为虚构 Mock · hi-fi prototype skill 骨架示例</p>
+    </main>
+  </div>
+</div>
+
+<!-- 右滑抽屉（440px；Esc/遮罩关闭） -->
+<div class="a-drawer-mask" id="drawer-mask" style="display:none"></div>
+<div class="a-drawer" id="drawer">
+  <div class="a-drawer-h"><b id="drawer-title">设备详情</b><span style="flex:1"></span><button class="btn btn-sm" id="drawer-x">关闭</button></div>
+  <div class="a-drawer-b" id="drawer-body"></div>
+</div>
+
+<script src="_shared/mock.js"></script>
+<script src="_shared/api.js"></script>
+<script src="_shared/components.js"></script>
+<script>
+  (function () {
+    var M01STATE = { built: false, rows: [], page: 1, pageSize: 4 };
+
+    /* 导航由 NAV_DOCS 注入（禁止手写） */
+    CMP.injectNav('01-设备监控.html');
+    CMP.hydrateIcons();
+    CMP.startClock(document.getElementById('clock'));
+
+    function lvTag(s) {
+      return { alarm: '<span class="a-tag red core-blink">红警</span>', warn: '<span class="a-tag orange">关注</span>',
+               run: '<span class="a-tag ok">运行</span>', idle: '<span class="a-tag blue">待机</span>' }[s] || s;
+    }
+    function healthBar(h) {
+      var c = h < 50 ? 'var(--c-danger)' : h < 75 ? 'var(--c-warn)' : 'var(--c-ok)';
+      return '<div style="display:flex;align-items:center;gap:8px"><div style="flex:1;height:6px;background:#F2F3F5;border-radius:3px;overflow:hidden">' +
+        '<i style="display:block;height:100%;width:' + h + '%;background:' + c + '"></i></div><b class="mono" style="color:' + c + '">' + h + '</b></div>';
+    }
+
+    function renderKpi(k) {
+      var items = [
+        ['设备总数', k.total, ''], ['运行中', k.run, 'ok'], ['关注', k.warn, 'warn'],
+        ['红警', k.alarm, 'danger'], ['OEE', k.oee + '%', '']
+      ];
+      document.getElementById('kpi-row').innerHTML = items.map(function (it) {
+        return '<div class="a-stat ' + it[2] + '"><b>' + it[1] + '</b><span>' + it[0] + '</span></div>';
+      }).join('');
+      /* 顶栏告警灯随数据联动 */
+      var lamp = document.getElementById('alarm-lamp');
+      lamp.className = 'alarm-lamp ' + (k.alarm > 0 ? 'danger' : k.warn > 0 ? 'warn' : '');
+    }
+
+    function renderRows() {
+      var rows = M01STATE.rows;
+      var total = Math.max(1, Math.ceil(rows.length / M01STATE.pageSize));
+      if (M01STATE.page > total) M01STATE.page = total;
+      var slice = rows.slice((M01STATE.page - 1) * M01STATE.pageSize, M01STATE.page * M01STATE.pageSize);
+      document.getElementById('dev-tbody').innerHTML = slice.map(function (d) {
+        return '<tr data-eq="' + d.id + '">' +
+          '<td class="mono">' + d.id + '</td><td><b>' + d.name + '</b></td><td>' + d.area + '</td>' +
+          '<td>' + lvTag(d.status) + '</td><td style="min-width:110px">' + healthBar(d.health) + '</td>' +
+          '<td>' + d.temp + '</td><td>' + (d.tags.length ? d.tags.map(function (t) { return '<span class="a-tag blue">' + t + '</span>'; }).join(' ') : '<span style="color:var(--c-t3)">—</span>') + '</td>' +
+          '<td class="mono">' + d.update + '</td>' +
+          '<td><button class="btn btn-sm" data-view="' + d.id + '">详情</button></td></tr>';
+      }).join('') + (rows.length === 0 ? '<tr><td colspan="9"><div class="empty">暂无设备数据</div></td></tr>' : '');
+      document.getElementById('dev-tbody').querySelectorAll('[data-view]').forEach(function (b) {
+        b.onclick = function () { openDrawer(b.getAttribute('data-view')); };
+      });
+      /* 前端分页器：上一页/下一页 + 页码 + 越界 Toast（规范：表格分页三件套） */
+      var pager = document.getElementById('dev-pager');
+      if (total > 1) {
+        pager.innerHTML = '<span>共 ' + rows.length + ' 条 · 第 ' + M01STATE.page + ' / ' + total + ' 页</span>' +
+          '<button class="btn btn-sm" data-pg="prev"' + (M01STATE.page <= 1 ? ' disabled' : '') + '>上一页</button>' +
+          '<button class="btn btn-sm" data-pg="next"' + (M01STATE.page >= total ? ' disabled' : '') + '>下一页</button>';
+        pager.querySelectorAll('[data-pg]').forEach(function (b) {
+          b.onclick = function () {
+            var op = b.getAttribute('data-pg');
+            if (op === 'prev' && M01STATE.page > 1) { M01STATE.page--; renderRows(); }
+            else if (op === 'next' && M01STATE.page < total) { M01STATE.page++; renderRows(); }
+            else { CMP.toast('info', '提示', op === 'prev' ? '已是第一页' : '已是最后一页'); }
+          };
+        });
+      } else { pager.innerHTML = '<span>共 ' + rows.length + ' 条</span>'; }
+    }
+
+    function openDrawer(id) {
+      var d = DB.m01.devices.filter(function (x) { return x.id === id; })[0];
+      if (!d) return;
+      document.getElementById('drawer-title').textContent = d.name + ' · 详情';
+      document.getElementById('drawer-body').innerHTML =
+        '<div class="kv">' +
+        '<i>编号</i><span class="mono">' + d.id + '</span>' +
+        '<i>车间</i><span>' + d.area + '</span>' +
+        '<i>状态</i><span>' + lvTag(d.status) + '</span>' +
+        '<i>健康度</i><span class="mono">' + d.health + '</span>' +
+        '<i>关键读数</i><span>' + d.temp + '</span>' +
+        '<i>关联告警</i><span class="mono">' + (DB.m01.mainline.deviceId === d.id ? DB.m01.mainline.alarmId : '—') + '</span>' +
+        '</div>' +
+        '<div style="margin-top:16px;display:flex;gap:10px">' +
+        (d.status === 'alarm'
+          ? '<button class="btn btn-danger" id="btn-stop">停机检修</button>'
+          : '<button class="btn" disabled title="P1 规划中">远程重启 <span class="a-tag wait">P1 规划中</span></button>') +
+        '</div>';
+      var mask = document.getElementById('drawer-mask'), drawer = document.getElementById('drawer');
+      mask.style.display = 'block';
+      requestAnimationFrame(function () { drawer.classList.add('open'); });
+      function closeDrawer() { drawer.classList.remove('open'); mask.style.display = 'none'; document.removeEventListener('keydown', esc); }
+      function esc(e) { if (e.key === 'Escape') closeDrawer(); }
+      document.getElementById('drawer-x').onclick = closeDrawer;
+      mask.onclick = closeDrawer;
+      document.addEventListener('keydown', esc);
+      var stopBtn = document.getElementById('btn-stop');
+      if (stopBtn) stopBtn.onclick = async function () {
+        /* 危险操作二次确认（danger 红色确认键）+ 按钮 loading 文案化 */
+        var go = await CMP.confirmModal({ danger: true, title: '停机检修确认', desc: '对 ' + d.name + '（' + d.id + '）执行停机并生成检修工单？该操作将通知当班班组。', okText: '确认停机' });
+        if (!go) return;
+        stopBtn.disabled = true; stopBtn.textContent = '停机中…';
+        await new Promise(function (r) { setTimeout(r, 900); });
+        stopBtn.textContent = '已停机'; stopBtn.disabled = true;
+        d.status = 'idle'; d.tags = ['已停机'];
+        CMP.beep();
+        CMP.toast('warning', '已执行停机', d.name + ' 转入检修，工单已派发至维修一班');
+        renderRows(); renderKpi(DB.m01.kpi); /* 状态变更联动刷新 */
+        setTimeout(closeDrawer, 400);
+      };
+    }
+
+    /* 剧本按钮：模拟新告警（一次点击驱动多处状态同步） */
+    document.getElementById('btn-simulate').onclick = async function () {
+      var btn = this;
+      btn.disabled = true; btn.textContent = '模拟中…';
+      var res = await API.simulateAlarm();
+      btn.disabled = false; btn.innerHTML = '<i data-icon="zap" data-size="13"></i>模拟新告警'; CMP.hydrateIcons(btn);
+      var a = res.data.alarm;
+      DB.m01.kpi.alarm += (a.lv === 'red' ? 1 : 0);
+      CMP.beep();
+      CMP.toast(a.lv === 'red' ? 'danger' : 'warning', '新告警 ' + a.id, a.title);
+      renderKpi(DB.m01.kpi); /* 状态变更联动刷新 KPI 与告警灯 */
+      M01STATE.rows = DB.m01.devices.slice(); renderRows();
+    };
+
+    /* 初始化：数据走 API 桩（拟真延迟） */
+    (async function init() {
+      var res = await API.fetchDevices();
+      M01STATE.rows = res.data.devices.slice();
+      renderKpi(res.data.kpi);
+      renderRows();
+    })();
+  })();
+</script>
+</body>
+</html>
