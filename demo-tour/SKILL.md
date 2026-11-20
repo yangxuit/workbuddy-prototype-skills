@@ -1,6 +1,20 @@
 ---
 name: demo-tour
+display_name: 演示放映机
+display_name_en: Demo Tour Projector
 description: 把任意 Web 原型/静态站点升级为"放映机式"自动演示：底部悬浮引导条 + 跨页面自动跳转 + 元素聚焦高亮 + 可直接照念的讲解词 + 现场互动提示，支持深度贯穿链/标准四段链/速览链三种叙事档位与 AI 推导-确认工作流。当用户要求"给原型加演示 / 做演示动线 / 自动放映 / 放映机 / 引导式演示 / 产品导览 / guided tour / 讲解引导 / 售前演示模式 / demo 引导 / 演示脚本 / 演示汇报页"，或要在已有原型、静态站点之上叠加宣讲演示能力（无需背稿、跟着引导条走完全程）时使用本技能。典型场景：客户评审、售前宣讲、内部培训、原型交付验收演示。不适用于从零生成原型本体（那是 hifi-prototype 技能的职责），也不做视频录制/视频导出。
+description_zh: 给任意 Web 原型加一条"开始→下一步→结束"的放映机式演示动线：跨页自动跳转、聚焦高亮、讲解词可照念，售前宣讲无需背稿。
+description_en: "Turn any web prototype into a projector-style guided demo: auto cross-page jumps, focus highlight, ready-to-read narration for sales presentations."
+examples_zh:
+  - "给这个原型加自动放映演示，我要给客户宣讲用"
+  - "做一个演示动线，跟着引导条走，不用背稿"
+  - "生成售前演示脚本，从大屏到告警处置到统计复盘串起来"
+examples_en:
+  - "Add a guided auto-play demo tour to this prototype"
+  - "Create a presentation walkthrough for the client review"
+  - "Generate a sales demo script following the guide bar"
+version: 1.0.0
+author: yangxuit
 agent_created: true
 ---
 

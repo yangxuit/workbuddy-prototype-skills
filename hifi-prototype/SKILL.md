@@ -1,6 +1,20 @@
 ---
 name: hifi-prototype
+display_name: B端高保真原型生成器
+display_name_en: B2B Hi-Fi Prototype Builder
 description: 生成可双击直开的 B 端业务系统高保真交互原型（管理后台 + 深色大屏驾驶舱双形态）：成套自动生成的仿真业务 Mock 数据（虚构企业世界观、人名/编号/电话全站一致、KPI 与明细严格对账），可点可流转的准产品级交互（表单校验、工单闭环、状态跨视图联动），配套门户汇总页（按交付状态自动标注）与分批交付。当用户要求"做原型 / 生成原型 / 高保真原型 / 产品原型 / 交互原型 / 原型图 / 可交互 demo / 产品演示"，特别是出现 B 端业务特征词——管理后台、大屏、驾驶舱、监控大屏、工单、台账、审批流、告警中心、设备管理、MES/SCADA/WMS 等工业与业务系统词汇——或提供功能清单/模块清单要求快速产出可演示的 Web 原型时，优先使用本技能。面向 C 端消费者的营销页/官网/海报/幻灯片，或需要 Figma 设计稿、静态线框图时，不适用本技能。
+description_zh: 一句话生成管理后台/监控大屏类 B 端系统的高保真原型：自带成套仿真业务数据、表单校验与工单闭环等准产品级交互，双击即开、可点可流转，附门户导航页按交付状态标注。
+description_en: "Generate hi-fi interactive prototypes for B2B systems (admin console + dark dashboard): bundled self-consistent mock data, form validation & ticket-loop interactions, double-click to run."
+examples_zh:
+  - "做一个设备管理系统的可交互原型，要有台账、点表实时值、维保提醒"
+  - "给我们的质检流程做一个管理后台原型，含工单流转和审批"
+  - "生成一个车间监控大屏原型，要有 GIS 一张图和实时告警"
+examples_en:
+  - "Build an interactive prototype for a device management system"
+  - "Create an admin console prototype with ticket workflow"
+  - "Generate a factory monitoring dashboard prototype"
+version: 1.0.0
+author: yangxuit
 agent_created: true
 ---
 
