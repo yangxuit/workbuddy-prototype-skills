@@ -1,5 +1,7 @@
 # WorkBuddy Prototype Skills
 
+> Claude Code / WorkBuddy **agent skills** for **B端 B2B prototype**：生成可双击直开的**高保真原型（hi-fi prototype）**——管理后台 admin console + 深色大屏 dashboard 双形态，自带成套 **mock 数据**与准产品级交互；配套**演示放映机（guided demo tour）**技能，把原型变成可自动放映的宣讲演示。
+
 一套面向 **B 端业务系统**的 AI 原型技能组合（Claude Code / WorkBuddy 等 Agent Skills 目录规范兼容）：**别人做"好看的设计稿"，我们做"能演示的准产品"**。
 
 | 技能 | 一句话 | 关键能力 |
